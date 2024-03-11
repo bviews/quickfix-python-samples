@@ -7,3 +7,5 @@ __pycache__
 /acceptor/Sessions/*
 /initiator/Logs/*
 /initiator/Sessions/*
+.idea/
+.python-version
