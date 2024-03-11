@@ -6,11 +6,11 @@ import quickfix as fix
 import time
 import logging
 from datetime import datetime
-from model.logger import setup_logger
+from initiator.model.logger import setup_logger
 __SOH__ = chr(1)
 
 # Logger
-setup_logger('logfix', 'Logs/message.log')
+setup_logger('logfix', 'initiator/Logs/message.log')
 logfix = logging.getLogger('logfix')
 
 

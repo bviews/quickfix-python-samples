@@ -2,10 +2,10 @@
 import quickfix as fix
 import logging
 import time
-from model.logger import setup_logger
+from acceptor.model.logger import setup_logger
 __SOH__ = chr(1)
 
-setup_logger('logfix', 'Logs/message.log')
+setup_logger('logfix', 'acceptor/Logs/message.log')
 logfix = logging.getLogger('logfix')
 
 class Application(fix.Application):
