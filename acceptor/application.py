@@ -3,16 +3,17 @@ import quickfix as fix
 import logging
 import time
 from acceptor.model.logger import setup_logger
+
 __SOH__ = chr(1)
 
 setup_logger('logfix', 'acceptor/Logs/message.log')
 logfix = logging.getLogger('logfix')
 
+
 class Application(fix.Application):
     """FIX Application"""
     orderID = 0
     execID = 0
-
 
     def onCreate(self, sessionID):
         """onCreate"""
@@ -50,14 +51,14 @@ class Application(fix.Application):
         logfix.debug("(App) R << %s" % msg)
         self.onMessage(message, sessionID)
         return
-    
 
     def onMessage(self, message, sessionID):
+        logfix.info("Received message: %s" % message)
         """Mockup execution report for newordersingle"""
         beginString = fix.BeginString()
         msgType = fix.MsgType()
-        message.getHeader().getField( beginString )
-        message.getHeader().getField( msgType )
+        message.getHeader().getField(beginString)
+        message.getHeader().getField(msgType)
 
         symbol = fix.Symbol()
         side = fix.Side()
@@ -66,44 +67,44 @@ class Application(fix.Application):
         price = fix.Price()
         clOrdID = fix.ClOrdID()
 
-        message.getField( ordType )
+        message.getField(ordType)
         if ordType.getValue() != fix.OrdType_LIMIT:
-            raise fix.IncorrectTagValue( ordType.getField() )
+            raise fix.IncorrectTagValue(ordType.getField())
 
-        message.getField( symbol )
-        message.getField( side )
-        message.getField( orderQty )
-        message.getField( price )
-        message.getField( clOrdID )
+        message.getField(symbol)
+        message.getField(side)
+        message.getField(orderQty)
+        message.getField(price)
+        message.getField(clOrdID)
 
         executionReport = fix.Message()
-        executionReport.getHeader().setField( beginString )
-        executionReport.getHeader().setField( fix.MsgType(fix.MsgType_ExecutionReport) )
+        executionReport.getHeader().setField(beginString)
+        executionReport.getHeader().setField(fix.MsgType(fix.MsgType_ExecutionReport))
 
-        executionReport.setField( fix.OrderID(self.genOrderID()) )
-        executionReport.setField( fix.ExecID(self.genExecID()) )
-        executionReport.setField( fix.OrdStatus(fix.OrdStatus_FILLED) )
-        executionReport.setField( symbol )
-        executionReport.setField( side )
-        executionReport.setField( fix.CumQty(orderQty.getValue()) )
-        executionReport.setField( fix.AvgPx(price.getValue()) )
-        executionReport.setField( fix.LastShares(orderQty.getValue()) )
-        executionReport.setField( fix.LastPx(price.getValue()) )
-        executionReport.setField( clOrdID )
-        executionReport.setField( orderQty )
+        executionReport.setField(fix.OrderID(self.genOrderID()))
+        executionReport.setField(fix.ExecID(self.genExecID()))
+        executionReport.setField(fix.OrdStatus(fix.OrdStatus_FILLED))
+        executionReport.setField(symbol)
+        executionReport.setField(side)
+        executionReport.setField(fix.CumQty(orderQty.getValue()))
+        executionReport.setField(fix.AvgPx(price.getValue()))
+        executionReport.setField(fix.LastShares(orderQty.getValue()))
+        executionReport.setField(fix.LastPx(price.getValue()))
+        executionReport.setField(clOrdID)
+        executionReport.setField(orderQty)
 
         if beginString.getValue() == fix.BeginString_FIX40 or beginString.getValue() == fix.BeginString_FIX41 or beginString.getValue() == fix.BeginString_FIX42:
-            executionReport.setField( fix.ExecTransType(fix.ExecTransType_NEW) )
+            executionReport.setField(fix.ExecTransType(fix.ExecTransType_NEW))
 
         if beginString.getValue() >= fix.BeginString_FIX41:
-            executionReport.setField( fix.ExecType(fix.ExecType_FILL) )
-            executionReport.setField( fix.LeavesQty(0) )
+            executionReport.setField(fix.ExecType(fix.ExecType_FILL))
+            executionReport.setField(fix.LeavesQty(0))
 
         try:
-            fix.Session.sendToTarget( executionReport, sessionID )
+            fix.Session.sendToTarget(executionReport, sessionID)
         except fix.SessionNotFound as e:
             return
-        
+
     def genOrderID(self):
         self.orderID += 1
         return str(self.orderID).zfill(5)
